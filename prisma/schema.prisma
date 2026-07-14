@@ -1,0 +1,109 @@
+// VG Cookies — schema de dados
+// Dinheiro SEMPRE em centavos (Int). Nunca float.
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  runtime         = "nodejs"
+  moduleFormat    = "esm"
+  previewFeatures = ["queryCompiler", "driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum PixKeyType {
+  CPF
+  CNPJ
+  EMAIL
+  PHONE
+  RANDOM
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  shortDescription String
+  longDescription  String
+  ingredients      String
+  priceCents       Int
+  weightGrams      Int?
+  imageUrl         String
+  imagePublicId    String
+  available        Boolean  @default(true)
+  featured         Boolean  @default(false) // aparece em "Nossos destaques"
+  stockQty         Int?     // null = estoque ilimitado (nao controlado); numero = admin controla manualmente
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([available, sortOrder])
+}
+
+model GalleryPhoto {
+  id            String   @id @default(cuid())
+  imageUrl      String
+  imagePublicId String
+  caption       String?
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([sortOrder])
+}
+
+// Singleton: sempre id = 1. Config estrutural + textos editaveis da Home.
+model SiteSettings {
+  id               Int        @id @default(1)
+  // Pix (editavel no painel)
+  pixKey           String     @default("")
+  pixKeyType       PixKeyType @default(RANDOM)
+  merchantName     String     @default("") // recebedor, max 25 chars (EMV)
+  merchantCity     String     @default("") // cidade, max 15 chars (EMV)
+  // Contato / pedido
+  whatsappNumber   String     @default("") // E.164 sem +, ex 5517996636191
+  deliveryFeeCents Int        @default(0)   // gratis por padrao
+  phone            String?
+  address          String?
+  instagram        String?
+  // CMS — textos da Home
+  heroTitle        String?
+  heroSubtitle     String?
+  aboutText        String?
+  // CMS — selos (3 blocos fixos abaixo do hero)
+  selo1Title       String     @default("Assados na hora")
+  selo1Desc        String     @default("Cada cookie sai do forno depois do seu pedido.")
+  selo2Title       String     @default("Em até 40 minutos")
+  selo2Desc        String     @default("Do forno até a sua porta, quentinho.")
+  selo3Title       String     @default("Retirada ou delivery")
+  selo3Desc        String     @default("Entregamos em Potirendaba e região.")
+  updatedAt        DateTime   @updatedAt
+}
+
+// Perguntas frequentes — editavel no painel (adicionar/remover/reordenar)
+model FaqItem {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}

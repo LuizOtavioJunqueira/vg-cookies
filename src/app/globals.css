@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* ===== Design System — VG Cookies (Design B: Vitrine VG) ===== */
+@theme {
+  --color-vermelho: #d62828;
+  --color-vermelho-esc: #a81e1e;
+  --color-vermelho-suave: #fbe3e0;
+  --color-laranja: #fda947;
+  --color-laranja-forte: #f5850f;
+  --color-creme: #fbf1e2;
+  --color-branco: #fffcf7;
+  --color-marrom: #3a1d0c;
+  --color-cinza: #7a6650;
+  --color-borda: #eaddc8;
+
+  --font-display: var(--font-bricolage), ui-sans-serif, sans-serif;
+  --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-creme);
+    color: var(--color-marrom);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  /* respeita usuarios com reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* placeholder de imagem quando o produto ainda nao tem foto no Cloudinary */
+.ph-cookie {
+  background: repeating-conic-gradient(
+      var(--color-laranja) 0deg 15deg,
+      var(--color-laranja-forte) 15deg 30deg
+    )
+    center / cover;
+  opacity: 0.25;
+}
