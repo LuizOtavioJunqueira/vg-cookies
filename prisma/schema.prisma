@@ -2,11 +2,11 @@
 // Dinheiro SEMPRE em centavos (Int). Nunca float.
 
 generator client {
-  provider      = "prisma-client"
-  output        = "../src/generated/prisma"
-  runtime       = "nodejs"
-  moduleFormat  = "esm"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  runtime      = "nodejs"
+  moduleFormat = "esm"
+  engineType   = "client"
 }
 
 datasource db {
