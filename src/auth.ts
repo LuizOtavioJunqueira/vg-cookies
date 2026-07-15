@@ -15,18 +15,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
 
-        const admin = await prisma.admin.findUnique({ where: { email } });
-        if (!admin) return null;
+        try {
+          const admin = await prisma.admin.findUnique({ where: { email } });
+          if (!admin) return null;
 
-        const ok = await bcrypt.compare(password, admin.passwordHash);
-        if (!ok) return null;
+          const ok = await bcrypt.compare(password, admin.passwordHash);
+          if (!ok) return null;
 
-        return {
-          id: admin.id,
-          name: admin.name,
-          email: admin.email,
-          role: admin.role,
-        };
+          return {
+            id: admin.id,
+            name: admin.name,
+            email: admin.email,
+            role: admin.role,
+          };
+        } catch (e) {
+          console.error("[authorize] falha ao consultar o banco:", e);
+          return null;
+        }
       },
     }),
   ],

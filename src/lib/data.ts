@@ -12,7 +12,8 @@ export async function getProducts(): Promise<ProductDTO[]> {
       orderBy: { sortOrder: "asc" },
     });
     return rows.map(toProductDTO);
-  } catch {
+  } catch (e) {
+    console.error("[getProducts] falha ao consultar o banco:", e);
     return [];
   }
 }
@@ -25,7 +26,8 @@ export async function getFeaturedProducts(limit = 4): Promise<ProductDTO[]> {
       take: limit,
     });
     return rows.map(toProductDTO);
-  } catch {
+  } catch (e) {
+    console.error("[getFeaturedProducts] falha ao consultar o banco:", e);
     return [];
   }
 }
@@ -37,7 +39,8 @@ export async function getGallery(limit = 6): Promise<GalleryPhotoDTO[]> {
       take: limit,
     });
     return rows.map((r: { id: string; imageUrl: string; caption: string | null }) => ({ id: r.id, imageUrl: r.imageUrl, caption: r.caption }));
-  } catch {
+  } catch (e) {
+    console.error("[getGallery] falha ao consultar o banco:", e);
     return [];
   }
 }
@@ -50,7 +53,8 @@ export async function getFaq(): Promise<FaqItemDTO[]> {
       question: r.question,
       answer: r.answer,
     }));
-  } catch {
+  } catch (e) {
+    console.error("[getFaq] falha ao consultar o banco:", e);
     return [];
   }
 }
@@ -76,7 +80,8 @@ export async function getSettings(): Promise<SiteSettingsDTO> {
       selo3Desc: s.selo3Desc,
       pixConfigured: s.pixKey.trim().length > 0 && s.merchantName.trim().length > 0,
     };
-  } catch {
+  } catch (e) {
+    console.error("[getSettings] falha ao consultar o banco:", e);
     return defaultSettings();
   }
 }
