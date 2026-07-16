@@ -72,6 +72,8 @@ export async function getSettings(): Promise<SiteSettingsDTO> {
       heroTitle: s.heroTitle,
       heroSubtitle: s.heroSubtitle,
       aboutText: s.aboutText,
+      heroImageUrl: s.heroImageUrl,
+      comoImageUrl: s.comoImageUrl,
       selo1Title: s.selo1Title,
       selo1Desc: s.selo1Desc,
       selo2Title: s.selo2Title,
@@ -98,6 +100,8 @@ function defaultSettings(): SiteSettingsDTO {
       "Massa artesanal, recheio generoso e entrega em até 40 minutos. Feito na hora, só depois que você pede.",
     aboutText:
       "Massa artesanal descansada, recheio generoso e forno na medida. É assim que garantimos aquele centro cremoso em cada mordida.",
+    heroImageUrl: null,
+    comoImageUrl: null,
     selo1Title: "Assados na hora",
     selo1Desc: "Cada cookie sai do forno depois do seu pedido.",
     selo2Title: "Em até 40 minutos",

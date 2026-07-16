@@ -41,6 +41,10 @@ export interface FullSettings {
   heroTitle: string | null;
   heroSubtitle: string | null;
   aboutText: string | null;
+  heroImageUrl: string | null;
+  heroImagePublicId: string | null;
+  comoImageUrl: string | null;
+  comoImagePublicId: string | null;
   selo1Title: string;
   selo1Desc: string;
   selo2Title: string;

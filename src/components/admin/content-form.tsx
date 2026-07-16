@@ -4,12 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { updateContent } from "@/lib/actions";
 import type { FullSettings } from "@/lib/admin-data";
+import { ImageUploader } from "@/components/admin/image-uploader";
 
 export function ContentForm({ settings }: { settings: FullSettings }) {
   const router = useRouter();
   const [heroTitle, setHeroTitle] = useState(settings.heroTitle ?? "");
   const [heroSubtitle, setHeroSubtitle] = useState(settings.heroSubtitle ?? "");
   const [aboutText, setAboutText] = useState(settings.aboutText ?? "");
+  const [heroImageUrl, setHeroImageUrl] = useState(settings.heroImageUrl ?? "");
+  const [heroImagePublicId, setHeroImagePublicId] = useState(settings.heroImagePublicId ?? "");
+  const [comoImageUrl, setComoImageUrl] = useState(settings.comoImageUrl ?? "");
+  const [comoImagePublicId, setComoImagePublicId] = useState(settings.comoImagePublicId ?? "");
   const [selo1Title, setSelo1Title] = useState(settings.selo1Title);
   const [selo1Desc, setSelo1Desc] = useState(settings.selo1Desc);
   const [selo2Title, setSelo2Title] = useState(settings.selo2Title);
@@ -26,6 +31,10 @@ export function ContentForm({ settings }: { settings: FullSettings }) {
       heroTitle: heroTitle || null,
       heroSubtitle: heroSubtitle || null,
       aboutText: aboutText || null,
+      heroImageUrl: heroImageUrl || null,
+      heroImagePublicId: heroImagePublicId || null,
+      comoImageUrl: comoImageUrl || null,
+      comoImagePublicId: comoImagePublicId || null,
       selo1Title,
       selo1Desc,
       selo2Title,
@@ -61,6 +70,16 @@ export function ContentForm({ settings }: { settings: FullSettings }) {
             className="w-full rounded-xl border border-borda bg-branco px-4 py-2.5 text-[15px] outline-none focus:border-vermelho"
           />
         </label>
+
+        <ImageUploader
+          label="Foto do topo (círculo ao lado do título)"
+          currentUrl={heroImageUrl}
+          onUploaded={({ url, publicId }) => {
+            setHeroImageUrl(url);
+            setHeroImagePublicId(publicId);
+          }}
+        />
+
         <label className="block">
           <span className="mb-1 block text-[13px] font-semibold">Texto &quot;Como fazemos&quot;</span>
           <textarea
@@ -70,6 +89,15 @@ export function ContentForm({ settings }: { settings: FullSettings }) {
             className="w-full rounded-xl border border-borda bg-branco px-4 py-2.5 text-[15px] outline-none focus:border-vermelho"
           />
         </label>
+
+        <ImageUploader
+          label="Foto da seção &quot;Como fazemos&quot;"
+          currentUrl={comoImageUrl}
+          onUploaded={({ url, publicId }) => {
+            setComoImageUrl(url);
+            setComoImagePublicId(publicId);
+          }}
+        />
       </div>
 
       <div className="mt-4 flex flex-col gap-4 rounded-2xl bg-branco p-5 shadow-[0_2px_10px_rgba(58,29,12,0.06)]">

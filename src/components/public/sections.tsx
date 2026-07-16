@@ -49,7 +49,7 @@ export function Hero({ settings }: { settings: SiteSettingsDTO }) {
             aria-hidden
           />
           <CookieImage
-            src=""
+            src={settings.heroImageUrl ?? ""}
             alt="Cookie recheado VG"
             rounded="rounded-full"
             className="relative z-10 w-[min(72vw,340px)] shadow-[0_24px_48px_rgba(58,29,12,0.25)]"
@@ -171,7 +171,7 @@ export function ComoFazemos({ settings }: { settings: SiteSettingsDTO }) {
         </div>
         <div className="flex justify-center">
           <CookieImage
-            src=""
+            src={settings.comoImageUrl ?? ""}
             alt="Cookie sendo preparado"
             rounded="rounded-full"
             className="w-[min(72vw,330px)] border-[5px] border-laranja shadow-[0_20px_40px_rgba(0,0,0,0.3)]"

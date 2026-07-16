@@ -30,6 +30,8 @@ export interface SiteSettingsDTO {
   heroTitle: string | null;
   heroSubtitle: string | null;
   aboutText: string | null;
+  heroImageUrl: string | null;
+  comoImageUrl: string | null;
   selo1Title: string;
   selo1Desc: string;
   selo2Title: string;

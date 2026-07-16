@@ -86,6 +86,11 @@ model SiteSettings {
   heroTitle        String?
   heroSubtitle     String?
   aboutText        String?
+  // CMS — imagens da Home (Cloudinary)
+  heroImageUrl      String?
+  heroImagePublicId String?
+  comoImageUrl      String?
+  comoImagePublicId String?
   // CMS — selos (3 blocos fixos abaixo do hero)
   selo1Title       String     @default("Assados na hora")
   selo1Desc        String     @default("Cada cookie sai do forno depois do seu pedido.")
