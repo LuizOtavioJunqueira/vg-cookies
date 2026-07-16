@@ -11,3 +11,4 @@ prisma/dev.db
 src/generated
 .vercel
 .env*
+tsconfig.tsbuildinfo
