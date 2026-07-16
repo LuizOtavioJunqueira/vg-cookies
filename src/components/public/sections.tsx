@@ -184,7 +184,13 @@ export function ComoFazemos({ settings }: { settings: SiteSettingsDTO }) {
 
 /* ---------- GALERIA ---------- */
 export function Galeria({ photos }: { photos: GalleryPhotoDTO[] }) {
-  const slots = photos.length > 0 ? photos : Array.from({ length: 6 }, (_, i) => ({ id: `ph-${i}`, imageUrl: "", caption: null }));
+  // Sempre mostra 6 posições: fotos reais primeiro, e o restante preenchido
+  // com o placeholder listrado. Assim o grid nunca fica "torto" enquanto o
+  // admin nao tiver subido as 6 fotos.
+  const slots: GalleryPhotoDTO[] = [...photos];
+  while (slots.length < 6) {
+    slots.push({ id: `ph-placeholder-${slots.length}`, imageUrl: "", caption: null });
+  }
   return (
     <section className="mx-auto max-w-[1140px] px-5 py-16">
       <SectionMark />
@@ -296,13 +302,25 @@ export function Footer({ settings }: { settings: SiteSettingsDTO }) {
             Redes
           </h5>
           {settings.instagram && (
-            <a href="#" className="mb-1.5 block text-[14px] opacity-80 hover:text-laranja hover:opacity-100">
+            
+              <a href={`https://instagram.com/${settings.instagram.replace(/^@/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mb-1.5 block text-[14px] opacity-80 hover:text-laranja hover:opacity-100">
+            
               {settings.instagram}
             </a>
           )}
-          <a href="#" className="block text-[14px] opacity-80 hover:text-laranja hover:opacity-100">
-            WhatsApp
-          </a>
+          {settings.whatsappNumber && (
+            
+              <a href={`https://wa.me/${settings.whatsappNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-[14px] opacity-80 hover:text-laranja hover:opacity-100">
+            
+              WhatsApp
+            </a>
+          )}
         </div>
       </div>
       <div className="mx-auto mt-9 max-w-[1140px] px-5 text-center text-[12.5px] opacity-55">
