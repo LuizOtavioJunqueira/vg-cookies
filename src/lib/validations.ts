@@ -1,11 +1,20 @@
 import { z } from "zod";
 
+export const paymentMethodSchema = z.enum([
+  "PIX",
+  "CARTAO_CREDITO",
+  "CARTAO_DEBITO",
+  "DINHEIRO",
+]);
+export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+
 export const checkoutSchema = z.object({
   customer: z.object({
     name: z.string().min(2, "Informe seu nome").max(80),
     address: z.string().min(5, "Informe o endereço de entrega").max(200),
     phone: z.string().max(20).optional().or(z.literal("")),
   }),
+  paymentMethod: paymentMethodSchema,
   items: z
     .array(
       z.object({

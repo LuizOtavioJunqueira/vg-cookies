@@ -7,7 +7,17 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/store/cart";
 import { formatBRL } from "@/lib/format";
 
+type PaymentMethod = "PIX" | "CARTAO_CREDITO" | "CARTAO_DEBITO" | "DINHEIRO";
+
+const PAYMENT_OPTIONS: { value: PaymentMethod; label: string }[] = [
+  { value: "PIX", label: "Pix" },
+  { value: "CARTAO_CREDITO", label: "Cartão de crédito" },
+  { value: "CARTAO_DEBITO", label: "Cartão de débito" },
+  { value: "DINHEIRO", label: "Dinheiro" },
+];
+
 interface CheckoutResult {
+  paymentMethod: PaymentMethod;
   pixConfigured: boolean;
   brCode: string | null;
   qrDataUrl: string | null;
@@ -38,6 +48,7 @@ export function CheckoutClient({
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("PIX");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<CheckoutResult | null>(null);
@@ -57,6 +68,7 @@ export function CheckoutClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer: { name, address, phone },
+          paymentMethod,
           items: items.map((i) => ({ id: i.id, qty: i.qty })),
         }),
       });
@@ -129,43 +141,65 @@ export function CheckoutClient({
           </div>
         </div>
 
-        {result.pixConfigured && result.qrDataUrl ? (
-          <div className="mt-5 rounded-2xl bg-branco p-5 shadow-[0_2px_10px_rgba(58,29,12,0.06)]">
-            <p className="text-[15px] font-bold">Pague com Pix</p>
-            <p className="mt-1 text-[13px] text-cinza">
-              Escaneie o QR Code ou use o código copia e cola. O valor já vem certo.
-            </p>
-            <Image
-              src={result.qrDataUrl}
-              alt="QR Code do Pix"
-              width={220}
-              height={220}
-              className="mx-auto my-4 rounded-xl"
-              unoptimized
-            />
-            <div className="flex items-center gap-2">
-              <code className="flex-1 truncate rounded-lg bg-creme px-3 py-2 text-[12px]">
-                {result.brCode}
-              </code>
-              <button
-                onClick={copyCode}
-                className="whitespace-nowrap rounded-lg bg-marrom px-3 py-2 text-[13px] font-bold text-creme"
-              >
-                {copied ? "Copiado!" : "Copiar"}
-              </button>
+        {result.paymentMethod === "PIX" ? (
+          result.pixConfigured && result.qrDataUrl ? (
+            <div className="mt-5 rounded-2xl bg-branco p-5 shadow-[0_2px_10px_rgba(58,29,12,0.06)]">
+              <p className="text-[15px] font-bold">Pague com Pix</p>
+              <p className="mt-1 text-[13px] text-cinza">
+                Escaneie o QR Code ou use o código copia e cola. O valor já vem certo.
+              </p>
+              <Image
+                src={result.qrDataUrl}
+                alt="QR Code do Pix"
+                width={220}
+                height={220}
+                className="mx-auto my-4 rounded-xl"
+                unoptimized
+              />
+              <div className="flex items-center gap-2">
+                <code className="flex-1 truncate rounded-lg bg-creme px-3 py-2 text-[12px]">
+                  {result.brCode}
+                </code>
+                <button
+                  onClick={copyCode}
+                  className="whitespace-nowrap rounded-lg bg-marrom px-3 py-2 text-[13px] font-bold text-creme"
+                >
+                  {copied ? "Copiado!" : "Copiar"}
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mt-5 rounded-2xl border border-laranja bg-laranja/10 p-5 text-[14px]">
+              O Pix ainda não foi configurado pela loja. Finalize o pedido pelo WhatsApp
+              que combinamos o pagamento por lá.
+            </div>
+          )
         ) : (
-          <div className="mt-5 rounded-2xl border border-laranja bg-laranja/10 p-5 text-[14px]">
-            O Pix ainda não foi configurado pela loja. Finalize o pedido pelo WhatsApp
-            que combinamos o pagamento por lá.
+          <div className="mt-5 rounded-2xl bg-branco p-5 shadow-[0_2px_10px_rgba(58,29,12,0.06)]">
+            <p className="text-[15px] font-bold">
+              Pagamento: {paymentLabel(result.paymentMethod)}
+            </p>
+            <p className="mt-1 text-[13px] text-cinza">
+              O pagamento é feito na entrega. Envie a mensagem abaixo para confirmar
+              seu pedido.
+            </p>
           </div>
         )}
 
         <div className="mt-5 rounded-2xl border border-borda bg-branco p-4 text-[13.5px] text-cinza">
-          <b className="text-marrom">Atenção:</b> após enviar a mensagem, anexe o
-          print do comprovante na conversa do WhatsApp. O envio da imagem é feito
-          por você, dentro do WhatsApp.
+          {result.paymentMethod === "PIX" ? (
+            <>
+              <b className="text-marrom">Atenção:</b> após enviar a mensagem, anexe o
+              print do comprovante na conversa do WhatsApp. O envio da imagem é feito
+              por você, dentro do WhatsApp.
+            </>
+          ) : (
+            <>
+              <b className="text-marrom">Atenção:</b> o pagamento em{" "}
+              {paymentLabel(result.paymentMethod).toLowerCase()} será combinado na
+              entrega. Envie a mensagem para confirmar o pedido.
+            </>
+          )}
         </div>
 
         {result.whatsappUrl ? (
@@ -176,7 +210,9 @@ export function CheckoutClient({
             onClick={() => clear()}
             className="mt-5 block rounded-full bg-vermelho px-6 py-4 text-center text-[15px] font-bold text-branco transition-colors hover:bg-vermelho-esc"
           >
-            Enviar comprovante no WhatsApp
+            {result.paymentMethod === "PIX"
+              ? "Enviar comprovante no WhatsApp"
+              : "Confirmar pedido no WhatsApp"}
           </a>
         ) : (
           <p className="mt-5 rounded-xl bg-creme p-3 text-center text-[13px] text-cinza">
@@ -226,6 +262,28 @@ export function CheckoutClient({
         />
       </div>
 
+      <div className="mt-5 text-left">
+        <span className="mb-2 block text-[13px] font-semibold text-marrom">
+          Forma de pagamento
+        </span>
+        <div className="grid grid-cols-2 gap-2">
+          {PAYMENT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setPaymentMethod(opt.value)}
+              className={`rounded-xl border px-4 py-3 text-[14px] font-semibold transition-colors ${
+                paymentMethod === opt.value
+                  ? "border-vermelho bg-vermelho text-branco"
+                  : "border-borda bg-branco text-marrom hover:border-vermelho"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="mt-5 rounded-2xl bg-branco p-4 text-[14px] shadow-[0_2px_10px_rgba(58,29,12,0.06)]">
         <div className="flex justify-between text-cinza">
           <span>Subtotal</span>
@@ -248,11 +306,19 @@ export function CheckoutClient({
         disabled={loading}
         className="mt-5 w-full rounded-full bg-vermelho px-6 py-4 text-[15px] font-bold text-branco transition-colors hover:bg-vermelho-esc disabled:opacity-60"
       >
-        {loading ? "Gerando pedido..." : "Gerar Pix e finalizar"}
+        {loading
+          ? "Gerando pedido..."
+          : paymentMethod === "PIX"
+            ? "Gerar Pix e finalizar"
+            : "Finalizar pedido"}
       </button>
       <BackLink />
     </Shell>
   );
+}
+
+function paymentLabel(method: PaymentMethod): string {
+  return PAYMENT_OPTIONS.find((p) => p.value === method)?.label ?? "Pix";
 }
 
 function Shell({ children }: { children: React.ReactNode }) {

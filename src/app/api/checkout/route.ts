@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  const { customer, items } = parsed.data;
+  const { customer, items, paymentMethod } = parsed.data;
 
   // Configurações + preços SEMPRE do banco (nunca confiar no cliente).
   const settings = await prisma.siteSettings.findUnique({ where: { id: 1 } });
@@ -72,8 +72,10 @@ export async function POST(req: Request) {
   const pixConfigured =
     settings.pixKey.trim().length > 0 && settings.merchantName.trim().length > 0;
 
+  // So gera Pix/QR se o cliente escolheu pagar via Pix. Cartao e dinheiro
+  // sao acertados na entrega, entao nem passam pelo gerador.
   let pix: { brCode: string; qrDataUrl: string } | null = null;
-  if (pixConfigured) {
+  if (paymentMethod === "PIX" && pixConfigured) {
     try {
       pix = await generatePix({
         pixKey: settings.pixKey,
@@ -91,10 +93,22 @@ export async function POST(req: Request) {
   }
 
   // Mensagem do WhatsApp com o resumo do pedido.
+  const PAYMENT_LABELS: Record<typeof paymentMethod, string> = {
+    PIX: "Pix",
+    CARTAO_CREDITO: "Cartão de crédito",
+    CARTAO_DEBITO: "Cartão de débito",
+    DINHEIRO: "Dinheiro",
+  };
+  const paymentLabel = PAYMENT_LABELS[paymentMethod];
+
   const itemLines = lines
     .map((l) => `• ${l.qty}x ${l.name} — ${formatBRL(l.lineCents)}`)
     .join("\n");
   const feeLine = feeCents > 0 ? `\nEntrega: ${formatBRL(feeCents)}` : "\nEntrega: Grátis";
+  const paymentClosingLine =
+    paymentMethod === "PIX"
+      ? "Segue o comprovante do Pix."
+      : `Pagamento combinado: ${paymentLabel} (na entrega).`;
   const message =
     `*Novo pedido — VG Cookies*\n\n` +
     `*Nome:* ${customer.name}\n` +
@@ -102,14 +116,16 @@ export async function POST(req: Request) {
     (customer.phone ? `*Telefone:* ${customer.phone}\n` : "") +
     `\n*Itens:*\n${itemLines}\n` +
     `\nSubtotal: ${formatBRL(subtotalCents)}${feeLine}\n` +
-    `*Total: ${formatBRL(totalCents)}*\n\n` +
-    `Segue o comprovante do Pix. 🙏`;
+    `*Total: ${formatBRL(totalCents)}*\n` +
+    `*Pagamento:* ${paymentLabel}\n\n` +
+    paymentClosingLine;
 
   const whatsappUrl = settings.whatsappNumber
     ? `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`
     : null;
 
   return NextResponse.json({
+    paymentMethod,
     pixConfigured,
     brCode: pix?.brCode ?? null,
     qrDataUrl: pix?.qrDataUrl ?? null,
