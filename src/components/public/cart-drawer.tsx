@@ -71,19 +71,20 @@ export function CartDrawer({
             <ul className="flex flex-col gap-3">
               {items.map((i) => (
                 <li key={i.id} className="flex gap-3 rounded-2xl bg-branco p-3">
-                  <CookieImage
-                    src={i.imageUrl}
-                    alt={i.name}
-                    rounded="rounded-xl"
-                    className="h-16 w-16 flex-none"
-                  />
-                  <div className="flex flex-1 flex-col">
+                  <div className="h-16 w-16 flex-none overflow-hidden rounded-xl">
+                    <CookieImage
+                      src={i.imageUrl}
+                      alt={i.name}
+                      rounded="rounded-xl"
+                    />
+                  </div>
+                  <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex justify-between gap-2">
-                      <span className="text-[14px] font-bold leading-tight">{i.name}</span>
+                      <span className="truncate text-[14px] font-bold leading-tight">{i.name}</span>
                       <button
                         onClick={() => removeItem(i.id)}
                         aria-label={`Remover ${i.name}`}
-                        className="text-[12px] text-cinza hover:text-vermelho"
+                        className="flex-none text-[12px] text-cinza hover:text-vermelho"
                       >
                         remover
                       </button>
